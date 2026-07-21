@@ -1,0 +1,49 @@
+let template_agents = document.head.querySelector("template.agents");
+let view_agents_list = document.body.querySelector(".agents-list");
+
+let update_agents = async () => {
+    let req = await fetch("/api/agents");
+    let body = await req.json();
+    
+    let agents_list = Array.from(view_agents_list.childNodes);
+    let agents_uuid_list = agents_list.map(a=>a.getAttribute("uuid"));
+
+    for(let i=0; i<body.agents.length; i++){
+        let current_agent = body.agents[i];
+        let agent_uuid = current_agent.uuid;
+
+        let agent_index = agents_uuid_list.indexOf(agent_uuid);
+        let agent_node = null;
+        if(agent_index == -1){
+            agent_fragment = template_agents.content.cloneNode(true);
+            agent_node = agent_fragment.firstElementChild;
+
+            // static infos
+            agent_node.setAttribute("uuid", agent_uuid);            
+            agent_node.querySelector(".logo-os").setAttribute("os", current_agent.metrics.os.generic);
+            agent_node.querySelector(".logo-arch").innerText = current_agent.metrics.os.arch;
+
+            view_agents_list.append(agent_node);
+        } else {
+            agent_node = agents_list[agent_index];
+        };
+
+        let meter_cpu = agent_node.querySelector(".meter.cpu");
+        meter_cpu.querySelector("progress").value = current_agent.metrics.cpu;
+        meter_cpu.querySelector(".info").innerText = (current_agent.metrics.cpu * 100).toFixed(1) + "%";
+
+        let meter_mem = agent_node.querySelector(".meter.memory");
+        meter_mem.querySelector("progress").value = current_agent.metrics.memory.used/current_agent.metrics.memory.total;
+        meter_mem.querySelector(".info").innerText = current_agent.metrics.memory.used + "/" + current_agent.metrics.memory.total + " GiB";
+
+        let meter_disk = agent_node.querySelector(".meter.disk");
+        meter_disk.querySelector("progress").value = current_agent.metrics.disk.used/current_agent.metrics.disk.total;
+        meter_disk.querySelector(".mount-point").innerText = "(" + current_agent.metrics.disk.mountPoint + ")";
+        meter_disk.querySelector(".info").innerText = current_agent.metrics.disk.used + "/" + current_agent.metrics.disk.total + " GiB";
+    };
+};
+
+update_agents();
+
+setInterval(update_agents, 1000);
+//setTimeout(()=>location.reload(), 1000);

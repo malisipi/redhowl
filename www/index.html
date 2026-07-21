@@ -2,8 +2,43 @@
 <html>
     <head>
         <title>RedHowl</title>
+        <link rel="stylesheet" href="./css/dashboard.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        <template class="agents">
+            <div class="agent-uuid" style="display: flex; flex-direction: row;  gap: 10px;">
+                <div class="logo" style="position: relative;">
+                    <div class="logo-os" os="unknown"></div>
+                    <div class="logo-arch" style="position: absolute; bottom: 2px; right: 2px; color: #CCC; background: #000C; border-radius: 4px; padding: 2px; font-weight: 900;">unknown</div>
+                </div>
+                <div class="info">
+                    <div class="name"></div>
+                    <div class="ip"></div>
+                </div>
+                <div class="metrics" style="display: flex; flex-direction: row; gap: 10px;">
+                    <div class="meter cpu">
+                        <div class="label">CPU</div>
+                        <progress class="cpu" min="0" max="1" value="0"></progress>
+                        <div class="info">0%</div>
+                    </div>
+                    <div class="meter memory">
+                        <div class="label">Memory</div>
+                        <progress class="memory" min="0" max="1" value="0"></progress>
+                        <div class="info">0%</div>
+                    </div>
+                    <div class="meter disk">
+                        <div class="label">Disk <span class="mount-point">(/)</span></div>
+                        <progress class="disk" min="0" max="1" value="0"></progress>
+                        <div class="info">0%</div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <script src="js/agents.js" defer></script>
     </head>
     <body>
-        <h1>RedHowl</h1>
+        <h1>Red Howl</h1>
+        <div class="agents-list"></div>
     </body>
 </html>

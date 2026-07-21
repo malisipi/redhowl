@@ -37,8 +37,8 @@ Gets the list of agents with filtering options.
 Query Parameters:
 ```json
 {
-    "status": "authorized", // "all" (default), "authorized", "unauthorized"
-    "uuid": "any", // "any" (default) | "AGENT-UUID"
+    "status": "authorized", // "*" (default), "authorized", "unauthorized"
+    "uuid": "*", // "*" (default) | "AGENT-UUID"
 }
 ```
 Response:
@@ -57,7 +57,8 @@ Response:
                 },
                 "disk": {
                     "used": 127.8, // as also GiB
-                    "total": 937.4
+                    "total": 937.4,
+                    "mountPoint": "C:\\"
                 },
                 "user": {
                     "name": "redwolf",
@@ -65,9 +66,10 @@ Response:
                     "isAdmin": false
                 },
                 "os": {
-                    "name": "CachyOS",
+                    "name": "CachyOS", // os name itself "Windows 11", "Ubuntu 22.04", "Arch", "CachyOS" etc.
                     "kernel": "Linux 7.1.3-2-cachyos",
-                    "arch": "amd64",
+                    "generic": "linux", // generic names like "linux", "windows", "macos"
+                    "arch": "amd64", // amd64, riscv64, arm64 etc
                     "shell": "/bin/bash",
                     "startupTimestamp": "2011-10-05T14:48:00.000Z"
                 },
@@ -97,7 +99,7 @@ Authorizes a agent.
 Request:
 ```json
 {
-    "uuid": "any", // "any" (default) | "AGENT-UUID"
+    "uuid": "*", // "*" (default) | "AGENT-UUID"
 }
 ```
 
@@ -110,7 +112,7 @@ Unauthorizes a agent.
 Request:
 ```json
 {
-    "uuid": "any", // "any" (default) | "AGENT-UUID"
+    "uuid": "*", // "*" (default) | "AGENT-UUID"
 }
 ```
 
