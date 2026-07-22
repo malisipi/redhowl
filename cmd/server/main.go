@@ -22,8 +22,15 @@ func main() {
 		agentMux := http.NewServeMux()
 
 		agentMux.HandleFunc("GET /api/version", handlerGetVersion)
-		//agentMux.Handle("GET /api/agent-com/ws", handlerAgentComWS)
-		//agentMux.Handle("POST /api/agent-com/register", handlerAgentComRegister)
+		agentMux.HandleFunc("GET /api/agent-com/ws", handlerAgentComWS)
+		//agentMux.HandleFunc("POST /api/agent-com/register", handlerAgentComRegister)
+
+		log.Println("Agent backend will be started on http://0.0.0.0:4000")
+		err := http.ListenAndServe("0.0.0.0:4000", agentMux)
+
+		if err != nil {
+			log.Fatalf("Agent backend is failed due to: %v", err)
+		}
 	}()
 
 	mux := http.NewServeMux()
@@ -45,7 +52,7 @@ func main() {
 	fs := http.FileServer(http.Dir("www"))
 	mux.Handle("GET /", fs)
 
-	log.Println("Admin dashboard is started on http://127.0.0.1:3000")
+	log.Println("Admin dashboard will be started on http://127.0.0.1:3000")
 
 	err = http.ListenAndServe("127.0.0.1:3000", mux)
 	if err != nil {

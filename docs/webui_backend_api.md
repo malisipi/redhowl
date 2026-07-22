@@ -50,22 +50,22 @@ Response:
             "status": "authorized",
             "connectedTimestamp": "2011-10-05T14:48:00.000Z", // it changes also status changes
             "metrics": {
-                "cpu": 65, // percentage
-                "memory": {
+                "cpu": 65, // percentage, via WSMetricSend
+                "memory": { // via WSMetricSend
                     "used": 5.2,
                     "total": 8 // as GiB
                 },
-                "disk": {
+                "disk": { // via WSMetricSend
                     "used": 127.8, // as also GiB
                     "total": 937.4,
                     "mountPoint": "C:\\"
                 },
-                "user": {
+                "user": { // via register
                     "name": "redwolf",
                     "uid": 255,
                     "isAdmin": false
                 },
-                "os": {
+                "os": { // via Register
                     "name": "CachyOS", // os name itself "Windows 11", "Ubuntu 22.04", "Arch", "CachyOS" etc.
                     "kernel": "Linux 7.1.3-2-cachyos",
                     "generic": "linux", // generic names like "linux", "windows", "macos"
@@ -73,15 +73,17 @@ Response:
                     "shell": "/bin/bash",
                     "startupTimestamp": "2011-10-05T14:48:00.000Z"
                 },
-                "machine": {
+                "machine": { // via Register
                     "id": "",
                     "name": "",
                     "vendor": "MONSTER",
                     "modelName": "TULPAR T5"
                 },
-                "network": {
+                "network": { // via WSMetricSend
                     "ipv4": "192.168.1.1",
                     "ipv6": "::0",
+                    "localIpv4": "192.168.1.1",
+                    "localIpv6": "::0",
                     "mac": "00:00:00:00:00:00"
                 }
             }

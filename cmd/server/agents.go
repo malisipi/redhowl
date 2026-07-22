@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"redhowl/cmd/internal"
+	"time"
+)
 
 func agentGetList() []Agent {
 	return []Agent{
@@ -10,21 +13,21 @@ func agentGetList() []Agent {
 			ConnectedTimestamp: time.Now(),
 			Metrics: AgentMetrics{
 				CPU: .452,
-				Memory: MetricsMemory{
+				Memory: internal.MetricsMemory{
 					Used:  3.4,
 					Total: 3.9,
 				},
-				Disk: MetricsDisk{
+				Disk: internal.MetricsDisk{
 					Used:       248,
 					Total:      480,
 					MountPoint: "/",
 				},
-				User: MetricsUser{
+				User: internal.MetricsUser{
 					Name:    "redwolf",
 					UID:     1000,
 					IsAdmin: false,
 				},
-				OS: MetricsOS{
+				OS: internal.MetricsOS{
 					Name:             "CachyOS",
 					Kernel:           "linux",
 					Generic:          "linux",
@@ -32,13 +35,13 @@ func agentGetList() []Agent {
 					Shell:            "/bin/bash",
 					StartupTimestamp: time.Now(),
 				},
-				Machine: MetricsMachine{
+				Machine: internal.MetricsMachine{
 					ID:        "machine-id",
 					Name:      "eye-of-the-wolf",
 					Vendor:    "MONSTER",
 					ModelName: "Tulpar",
 				},
-				Network: MetricsNetwork{
+				Network: internal.MetricsNetwork{
 					IPv4: "127.0.0.1",
 					IPv6: "::0",
 					MAC:  "00:00:00:00:00:00",
@@ -51,21 +54,21 @@ func agentGetList() []Agent {
 			ConnectedTimestamp: time.Now(),
 			Metrics: AgentMetrics{
 				CPU: .252,
-				Memory: MetricsMemory{
+				Memory: internal.MetricsMemory{
 					Used:  5.4,
 					Total: 7.9,
 				},
-				Disk: MetricsDisk{
+				Disk: internal.MetricsDisk{
 					Used:       278,
 					Total:      880,
 					MountPoint: "/",
 				},
-				User: MetricsUser{
+				User: internal.MetricsUser{
 					Name:    "redwolf",
 					UID:     1000,
 					IsAdmin: false,
 				},
-				OS: MetricsOS{
+				OS: internal.MetricsOS{
 					Name:             "CachyOS",
 					Kernel:           "linux",
 					Generic:          "macos",
@@ -73,13 +76,13 @@ func agentGetList() []Agent {
 					Shell:            "/bin/bash",
 					StartupTimestamp: time.Now(),
 				},
-				Machine: MetricsMachine{
+				Machine: internal.MetricsMachine{
 					ID:        "machine-id",
 					Name:      "eye-of-the-wolf",
 					Vendor:    "MONSTER",
 					ModelName: "Tulpar",
 				},
-				Network: MetricsNetwork{
+				Network: internal.MetricsNetwork{
 					IPv4: "127.0.0.1",
 					IPv6: "::0",
 					MAC:  "00:00:00:00:00:00",
@@ -92,21 +95,21 @@ func agentGetList() []Agent {
 			ConnectedTimestamp: time.Now(),
 			Metrics: AgentMetrics{
 				CPU: .85,
-				Memory: MetricsMemory{
+				Memory: internal.MetricsMemory{
 					Used:  15.4,
 					Total: 15.7,
 				},
-				Disk: MetricsDisk{
+				Disk: internal.MetricsDisk{
 					Used:       948,
 					Total:      956,
 					MountPoint: "C:\\",
 				},
-				User: MetricsUser{
+				User: internal.MetricsUser{
 					Name:    "redwolf",
 					UID:     1000,
 					IsAdmin: false,
 				},
-				OS: MetricsOS{
+				OS: internal.MetricsOS{
 					Name:             "CachyOS",
 					Kernel:           "linux",
 					Generic:          "windows",
@@ -114,13 +117,13 @@ func agentGetList() []Agent {
 					Shell:            "/bin/bash",
 					StartupTimestamp: time.Now(),
 				},
-				Machine: MetricsMachine{
+				Machine: internal.MetricsMachine{
 					ID:        "machine-id",
 					Name:      "eye-of-the-wolf",
 					Vendor:    "MONSTER",
 					ModelName: "Tulpar",
 				},
-				Network: MetricsNetwork{
+				Network: internal.MetricsNetwork{
 					IPv4: "127.0.0.1",
 					IPv6: "::0",
 					MAC:  "00:00:00:00:00:00",

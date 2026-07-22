@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"redhowl/cmd/internal"
+	"time"
+)
 
 type ReqAuthorize struct {
 	UUID string `json:"uuid"`
@@ -26,53 +29,13 @@ type Agent struct {
 }
 
 type AgentMetrics struct {
-	CPU     float64        `json:"cpu"`
-	Memory  MetricsMemory  `json:"memory"`
-	Disk    MetricsDisk    `json:"disk"`
-	User    MetricsUser    `json:"user"`
-	OS      MetricsOS      `json:"os"`
-	Machine MetricsMachine `json:"machine"`
-	Network MetricsNetwork `json:"network"`
-}
-
-// sub
-type MetricsNetwork struct {
-	IPv4 string `json:"ipv4"`
-	IPv6 string `json:"ipv6"`
-	MAC  string `json:"mac"`
-}
-
-type MetricsMachine struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Vendor    string `json:"vendor"`
-	ModelName string `json:"modelName"`
-}
-
-type MetricsOS struct {
-	Name             string    `json:"name"`
-	Kernel           string    `json:"kernel"`
-	Generic          string    `json:"generic"`
-	Arch             string    `json:"arch"`
-	Shell            string    `json:"shell"`
-	StartupTimestamp time.Time `json:"startupTimestamp"`
-}
-
-type MetricsUser struct {
-	Name    string `json:"name"`
-	UID     int    `json:"uid"`
-	IsAdmin bool   `json:"isAdmin"`
-}
-
-type MetricsDisk struct {
-	Used       float64 `json:"used"`
-	Total      float64 `json:"total"`
-	MountPoint string  `json:"mountPoint"`
-}
-
-type MetricsMemory struct {
-	Used  float64 `json:"used"`
-	Total float64 `json:"total"`
+	CPU     float64                 `json:"cpu"`
+	Memory  internal.MetricsMemory  `json:"memory"`
+	Disk    internal.MetricsDisk    `json:"disk"`
+	User    internal.MetricsUser    `json:"user"`
+	OS      internal.MetricsOS      `json:"os"`
+	Machine internal.MetricsMachine `json:"machine"`
+	Network internal.MetricsNetwork `json:"network"`
 }
 
 type TaskGeneric struct {
