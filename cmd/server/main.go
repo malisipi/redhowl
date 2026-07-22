@@ -1,134 +1,31 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
-func handlerGetVersion(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	res := ResVersion{
-		Version: []int{0, 0, 1},
-	}
-	json.NewEncoder(w).Encode(res)
-}
-
-func handlerGetAgents(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	res := ResAgents{
-		Agents: agentGetList(),
-	}
-	json.NewEncoder(w).Encode(res)
-}
-
-func handlerPostAgentsAuthorize(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var reqBody ReqAuthorize
-	err := json.NewDecoder(req.Body).Decode(&reqBody)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode((ResErr{Error: "Invalid JSON request"}))
-		return
-	}
-
-	if !agentExist(reqBody.UUID) && reqBody.UUID != "*" {
-		w.WriteHeader(http.StatusBadRequest)
-		errRes := ResErr{
-			Error: "UUID is not valid",
-		}
-		json.NewEncoder(w).Encode(errRes)
-		return
-	}
-	agentAuthorize(reqBody.UUID)
-	w.WriteHeader(http.StatusNoContent)
-}
-
-func handlerPostAgentsUnauthorize(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var reqBody ReqAuthorize
-	err := json.NewDecoder(req.Body).Decode(&reqBody)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode((ResErr{Error: "Invalid JSON request"}))
-		return
-	}
-
-	if !agentExist(reqBody.UUID) && reqBody.UUID != "*" {
-		w.WriteHeader(http.StatusBadRequest)
-		errRes := ResErr{
-			Error: "UUID is not valid",
-		}
-		json.NewEncoder(w).Encode(errRes)
-		return
-	}
-	agentUnauthorize(reqBody.UUID)
-	w.WriteHeader(http.StatusNoContent)
-}
-
-func handlerPostAgentsTasks(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var reqBody ReqTask
-	err := json.NewDecoder(req.Body).Decode(&reqBody)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode((ResErr{Error: "Invalid JSON request"}))
-		return
-	}
-
-	res := ResTaskId{}
-	res.Task.ID = agentTaskRun(reqBody)
-	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(res)
-}
-
-func handlerGetAgentsTasks(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader((http.StatusOK))
-	res := ResTasks{
-		Tasks: agentTaskList(),
-	}
-	json.NewEncoder(w).Encode(res)
-}
-
-func handlerGetAgentsTasksById(w http.ResponseWriter, req *http.Request) {
-	taskId := req.PathValue("taskId")
-	w.Header().Set("Content-Type", "application/json")
-
-	if taskId == "" || !agentTaskExist(taskId) {
-		w.WriteHeader(http.StatusNotFound)
-		errRes := ResErr{
-			Error: "taskId is not valid",
-		}
-		json.NewEncoder(w).Encode(errRes)
-		return
-	}
-	agentTaskGet(taskId) // TODO: return the data
-	w.WriteHeader(http.StatusNoContent)
-}
-
-func handlerDeleteAgentsTasksById(w http.ResponseWriter, req *http.Request) {
-	taskId := req.PathValue("taskId")
-	log.Println(taskId)
-	w.Header().Set("Content-Type", "application/json")
-
-	if taskId == "" || !agentTaskExist(taskId) {
-		w.WriteHeader(http.StatusNotFound)
-		errRes := ResErr{
-			Error: "taskId is not valid",
-		}
-		json.NewEncoder(w).Encode(errRes)
-		return
-	}
-	agentTaskDelete(taskId)
-	w.WriteHeader(http.StatusNoContent)
-}
+var redhowlTmpDir string
 
 func main() {
+	redhowlTmpDir = filepath.Join(os.TempDir(), "redhowl")
+
+	err := os.MkdirAll(redhowlTmpDir, os.ModePerm)
+	if err != nil {
+		log.Fatalln("Unable to create tmpDir")
+		return
+	}
+
+	go func() {
+		agentMux := http.NewServeMux()
+
+		agentMux.HandleFunc("GET /api/version", handlerGetVersion)
+		//agentMux.Handle("GET /api/agent-com/ws", handlerAgentComWS)
+		//agentMux.Handle("POST /api/agent-com/register", handlerAgentComRegister)
+	}()
+
 	mux := http.NewServeMux()
 
 	// version
@@ -148,10 +45,10 @@ func main() {
 	fs := http.FileServer(http.Dir("www"))
 	mux.Handle("GET /", fs)
 
-	log.Println("Server is started on http://127.0.0.1:3000")
+	log.Println("Admin dashboard is started on http://127.0.0.1:3000")
 
-	err := http.ListenAndServe(":3000", mux)
+	err = http.ListenAndServe("127.0.0.1:3000", mux)
 	if err != nil {
-		log.Fatalf("Server is failed due to: %v", err)
+		log.Fatalf("Admin dashboard is failed due to: %v", err)
 	}
 }

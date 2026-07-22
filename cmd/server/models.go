@@ -113,7 +113,7 @@ type ReqTask struct {
 	Description string `json:"description"`
 	Permissions TaskPermission
 	Agents      []string `json:"agents"`
-	Wasm        string   `json:"wasm"`
+	// Wasm part must be parsed as raw binary
 }
 
 type TaskPermission struct {

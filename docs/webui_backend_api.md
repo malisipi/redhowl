@@ -1,4 +1,4 @@
-# RedHowl Backend API
+# RedHowl WebUI Backend API
 
 |Method|URL                              |Description|
 |------|---------------------------------|-----------|
@@ -122,8 +122,9 @@ Response Code: 204
 
 Uploads a WASM module and run a task with the module.
 
-Request:
+Request: as `multipart/form-data`
 ```json
+// "json" part
 {
     "name": "Task name",
     "description": "Task Description",
@@ -134,8 +135,8 @@ Request:
         "artifacts": true
     },
     "agents": [], // uuids or directly "*"
-    "wasm": "", // base64 encoded wasm module
 }
+// "wasm" as binary
 ```
 Response:
 ```json
