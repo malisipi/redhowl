@@ -3,11 +3,9 @@ package internal
 import "time"
 
 type MetricsNetwork struct {
-	IPv4      string `json:"ipv4"`
-	IPv6      string `json:"ipv6"`
-	LocalIPv4 string `json:"localIpv4"`
-	LocalIPv6 string `json:"localIpv6"`
-	MAC       string `json:"mac"`
+	IPv4 string `json:"ipv4"`
+	IPv6 string `json:"ipv6"`
+	MAC  string `json:"mac"`
 }
 
 type MetricsMachine struct {

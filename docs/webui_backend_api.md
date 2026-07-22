@@ -80,10 +80,8 @@ Response:
                     "modelName": "TULPAR T5"
                 },
                 "network": { // via WSMetricSend
-                    "ipv4": "192.168.1.1",
+                    "ipv4": "192.168.1.1", // should be return local addresses
                     "ipv6": "::0",
-                    "localIpv4": "192.168.1.1",
-                    "localIpv6": "::0",
                     "mac": "00:00:00:00:00:00"
                 }
             }

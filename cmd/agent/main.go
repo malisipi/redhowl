@@ -24,10 +24,10 @@ func main() {
 
 	stats := internal.WSMetricSend{
 		WSTypeHeader: internal.WSTypeHeader{Type: internal.WSTypeMetricSend},
-		CPU:          74.1,
-		Memory:       internal.MetricsMemory{Used: 1.2, Total: 4.7},
-		Disk:         internal.MetricsDisk{Used: 24, Total: 68, MountPoint: "/"},
-		Network:      internal.MetricsNetwork{IPv4: "64.12.15.47", IPv6: "::0", LocalIPv4: "127.0.0.1", LocalIPv6: "::0", MAC: "00:11:22:33:44:55"},
+		CPU:          getCpuUsage(),
+		Memory:       getMemoryStats(),
+		Disk:         getDiskStats(),
+		Network:      getNetworkStats(),
 	}
 
 	err = conn.WriteJSON(stats)

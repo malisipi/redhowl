@@ -42,7 +42,10 @@ func handlerAgentComWS(w http.ResponseWriter, req *http.Request) {
 			{
 				var metrics internal.WSMetricSend
 				if err := json.Unmarshal(msg, &metrics); err == nil {
-					log.Printf("Got metrics data\nCPU: %v\n", metrics.CPU)
+					log.Printf("Got metrics data\nCPU: %v\nMemory| Used:%v Total:%v|\n"+
+						"Disk| Used:%v Total:%v Mount:%v\nNetwork| IPv4:%v, IPv6:%v, MAC:%v\n",
+						metrics.CPU, metrics.Memory.Used, metrics.Memory.Total,
+						metrics.Disk.Used, metrics.Disk.Total, metrics.Disk.MountPoint, metrics.Network.IPv4, metrics.Network.IPv6, metrics.Network.MAC)
 				} else {
 					log.Println("Can't parsed JSON, Type and Struct is mismatched")
 				}
