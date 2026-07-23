@@ -90,3 +90,6 @@ Response: It will be upgraded to WS when authenticated, if not will return 403.
 
 ### WebSocker Transfer Information
 
+The data should be polyformic, all data that will be transmitted must have `type` section to determine strictly the struct to prevent any issues
+
+Most parts will be declared on [agent_com_ws.go](../cmd/internal/agent_com_ws.go) and it will be shared server and agent in same time.

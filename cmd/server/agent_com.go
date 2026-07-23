@@ -15,7 +15,30 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
+func handlerAgentComRegister(w http.ResponseWriter, req *http.Request) {
+	var reqBody internal.ReqAgentRegister
+	err := json.NewDecoder(req.Body).Decode(&reqBody)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode((ResErr{Error: "Invalid JSON request"}))
+		return
+	}
+
+	log.Println("New agent registered")
+
+	agentRegister(reqBody)
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func handlerAgentComWS(w http.ResponseWriter, req *http.Request) {
+	agentUUID := req.FormValue("uuid")
+
+	if !agentAuthorized(agentUUID) {
+		log.Println("New agent request was revoked since it's unauthorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
 		log.Printf("WS Connection failed due to, %v\n", err)
@@ -24,6 +47,15 @@ func handlerAgentComWS(w http.ResponseWriter, req *http.Request) {
 	defer conn.Close()
 
 	log.Printf("New agent connected: %s\n", conn.RemoteAddr())
+
+	agentsListLock.Lock()
+	for i := range agentsList {
+		if agentsList[i].UUID == agentUUID {
+			agentsList[i].WSConn = conn
+			break
+		}
+	}
+	agentsListLock.Unlock()
 
 	for {
 		_, msg, err := conn.ReadMessage()
@@ -42,10 +74,17 @@ func handlerAgentComWS(w http.ResponseWriter, req *http.Request) {
 			{
 				var metrics internal.WSMetricSend
 				if err := json.Unmarshal(msg, &metrics); err == nil {
-					log.Printf("Got metrics data\nCPU: %v\nMemory| Used:%v Total:%v|\n"+
-						"Disk| Used:%v Total:%v Mount:%v\nNetwork| IPv4:%v, IPv6:%v, MAC:%v\n",
-						metrics.CPU, metrics.Memory.Used, metrics.Memory.Total,
-						metrics.Disk.Used, metrics.Disk.Total, metrics.Disk.MountPoint, metrics.Network.IPv4, metrics.Network.IPv6, metrics.Network.MAC)
+					agentsListLock.Lock()
+					for i := range agentsList {
+						if agentsList[i].UUID == agentUUID {
+							agentsList[i].Metrics.CPU = metrics.CPU
+							agentsList[i].Metrics.Memory = metrics.Memory
+							agentsList[i].Metrics.Disk = metrics.Disk
+							agentsList[i].Metrics.Network = metrics.Network
+							break
+						}
+					}
+					agentsListLock.Unlock()
 				} else {
 					log.Println("Can't parsed JSON, Type and Struct is mismatched")
 				}

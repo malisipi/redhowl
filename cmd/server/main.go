@@ -23,7 +23,7 @@ func main() {
 
 		agentMux.HandleFunc("GET /api/version", handlerGetVersion)
 		agentMux.HandleFunc("GET /api/agent-com/ws", handlerAgentComWS)
-		//agentMux.HandleFunc("POST /api/agent-com/register", handlerAgentComRegister)
+		agentMux.HandleFunc("POST /api/agent-com/register", handlerAgentComRegister)
 
 		log.Println("Agent backend will be started on http://0.0.0.0:4000")
 		err := http.ListenAndServe("0.0.0.0:4000", agentMux)

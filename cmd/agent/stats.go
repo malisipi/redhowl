@@ -23,7 +23,7 @@ func getCpuUsage() float64 {
 	if len(cpuPercents) > 0 {
 		cpuUsage = cpuPercents[0]
 	}
-	return cpuUsage
+	return cpuUsage / 100
 }
 
 func getMemoryStats() internal.MetricsMemory {

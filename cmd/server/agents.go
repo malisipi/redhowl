@@ -2,146 +2,96 @@ package main
 
 import (
 	"redhowl/cmd/internal"
+	"sync"
 	"time"
 )
 
-func agentGetList() []Agent {
-	return []Agent{
-		Agent{
-			UUID:               "agent-1",
-			Status:             "authorized",
-			ConnectedTimestamp: time.Now(),
-			Metrics: AgentMetrics{
-				CPU: .452,
-				Memory: internal.MetricsMemory{
-					Used:  3.4,
-					Total: 3.9,
-				},
-				Disk: internal.MetricsDisk{
-					Used:       248,
-					Total:      480,
-					MountPoint: "/",
-				},
-				User: internal.MetricsUser{
-					Name:    "redwolf",
-					UID:     1000,
-					IsAdmin: false,
-				},
-				OS: internal.MetricsOS{
-					Name:             "CachyOS",
-					Kernel:           "linux",
-					Generic:          "linux",
-					Arch:             "amd64",
-					Shell:            "/bin/bash",
-					StartupTimestamp: time.Now(),
-				},
-				Machine: internal.MetricsMachine{
-					ID:        "machine-id",
-					Name:      "eye-of-the-wolf",
-					Vendor:    "MONSTER",
-					ModelName: "Tulpar",
-				},
-				Network: internal.MetricsNetwork{
-					IPv4: "127.0.0.1",
-					IPv6: "::0",
-					MAC:  "00:00:00:00:00:00",
-				},
-			},
-		},
-		Agent{
-			UUID:               "agent-2",
-			Status:             "authorized",
-			ConnectedTimestamp: time.Now(),
-			Metrics: AgentMetrics{
-				CPU: .252,
-				Memory: internal.MetricsMemory{
-					Used:  5.4,
-					Total: 7.9,
-				},
-				Disk: internal.MetricsDisk{
-					Used:       278,
-					Total:      880,
-					MountPoint: "/",
-				},
-				User: internal.MetricsUser{
-					Name:    "redwolf",
-					UID:     1000,
-					IsAdmin: false,
-				},
-				OS: internal.MetricsOS{
-					Name:             "CachyOS",
-					Kernel:           "linux",
-					Generic:          "macos",
-					Arch:             "arm64",
-					Shell:            "/bin/bash",
-					StartupTimestamp: time.Now(),
-				},
-				Machine: internal.MetricsMachine{
-					ID:        "machine-id",
-					Name:      "eye-of-the-wolf",
-					Vendor:    "MONSTER",
-					ModelName: "Tulpar",
-				},
-				Network: internal.MetricsNetwork{
-					IPv4: "127.0.0.1",
-					IPv6: "::0",
-					MAC:  "00:00:00:00:00:00",
-				},
-			},
-		},
-		Agent{
-			UUID:               "agent-3",
-			Status:             "authorized",
-			ConnectedTimestamp: time.Now(),
-			Metrics: AgentMetrics{
-				CPU: .85,
-				Memory: internal.MetricsMemory{
-					Used:  15.4,
-					Total: 15.7,
-				},
-				Disk: internal.MetricsDisk{
-					Used:       948,
-					Total:      956,
-					MountPoint: "C:\\",
-				},
-				User: internal.MetricsUser{
-					Name:    "redwolf",
-					UID:     1000,
-					IsAdmin: false,
-				},
-				OS: internal.MetricsOS{
-					Name:             "CachyOS",
-					Kernel:           "linux",
-					Generic:          "windows",
-					Arch:             "amd64",
-					Shell:            "/bin/bash",
-					StartupTimestamp: time.Now(),
-				},
-				Machine: internal.MetricsMachine{
-					ID:        "machine-id",
-					Name:      "eye-of-the-wolf",
-					Vendor:    "MONSTER",
-					ModelName: "Tulpar",
-				},
-				Network: internal.MetricsNetwork{
-					IPv4: "127.0.0.1",
-					IPv6: "::0",
-					MAC:  "00:00:00:00:00:00",
-				},
-			},
-		},
+var agentsList []Agent
+var agentsListLock sync.RWMutex
+
+func agentRegister(agentReq internal.ReqAgentRegister) {
+	agentsListLock.Lock()
+	defer agentsListLock.Unlock()
+
+	for i := range agentsList { // return if exist
+		if agentsList[i].UUID == agentReq.UUID {
+			return
+		}
 	}
+
+	agentsList = append(agentsList, Agent{
+		UUID:               agentReq.UUID,
+		Status:             "unauthorized",
+		ConnectedTimestamp: time.Now(),
+		Metrics: AgentMetrics{
+			User:    agentReq.User,
+			OS:      agentReq.OS,
+			Machine: agentReq.Machine,
+		},
+	})
+}
+
+func agentGetList() []Agent {
+	agentsListLock.RLock()
+	defer agentsListLock.RUnlock()
+
+	copiedList := make([]Agent, len(agentsList))
+	copy(copiedList, agentsList)
+	return copiedList
 }
 
 func agentExist(agentUUID string) bool {
-	return agentUUID != ""
+	agentsListLock.RLock()
+	defer agentsListLock.RUnlock()
+
+	for i := range agentsList {
+		if agentsList[i].UUID == agentUUID {
+			return true
+		}
+	}
+	return false
 }
 
-// must also handle "any" value
+func agentAuthorized(agentUUID string) bool {
+	agentsListLock.RLock()
+	defer agentsListLock.RUnlock()
+
+	for i := range agentsList {
+		if agentsList[i].UUID == agentUUID {
+			return agentsList[i].Status == "authorized" // MUST be AUTHORIZED as EXPLICITLY
+		}
+	}
+	return false
+}
+
+// must also handle "*" value
 func agentAuthorize(agentUUID string) {
-	return
+	agentsListLock.Lock()
+	defer agentsListLock.Unlock()
+
+	is_any_agent := agentUUID == "*"
+	for i := range agentsList {
+		if agentsList[i].UUID == agentUUID || is_any_agent {
+			agentsList[i].Status = "authorized"
+			if !is_any_agent {
+				return
+			}
+		}
+	}
 }
 
 func agentUnauthorize(agentUUID string) {
-	return
+	agentsListLock.Lock()
+	defer agentsListLock.Unlock()
+
+	is_any_agent := agentUUID == "*"
+	for i := range agentsList {
+		if agentsList[i].UUID == agentUUID || is_any_agent {
+			agentsList[i].Status = "unauthorized"
+			agentsList[i].WSConn.Close() // Can't even wait to get or send any transfer or data with "unauthorized" client
+			if !is_any_agent {
+				return
+			}
+		}
+	}
 }

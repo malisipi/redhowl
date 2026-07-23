@@ -3,6 +3,8 @@ package main
 import (
 	"redhowl/cmd/internal"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 type ReqAuthorize struct {
@@ -22,10 +24,11 @@ type ResAgents struct {
 }
 
 type Agent struct {
-	UUID               string       `json:"uuid"`
-	Status             string       `json:"status"`
-	ConnectedTimestamp time.Time    `json:"connectedTimestamp"`
-	Metrics            AgentMetrics `json:"metrics"`
+	UUID               string          `json:"uuid"`
+	Status             string          `json:"status"`
+	ConnectedTimestamp time.Time       `json:"connectedTimestamp"`
+	Metrics            AgentMetrics    `json:"metrics"`
+	WSConn             *websocket.Conn `json:"-"`
 }
 
 type AgentMetrics struct {

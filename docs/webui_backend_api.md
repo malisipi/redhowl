@@ -60,7 +60,7 @@ Response:
                     "total": 937.4,
                     "mountPoint": "C:\\"
                 },
-                "user": { // via register
+                "user": { // via Register
                     "name": "redwolf",
                     "uid": 255,
                     "isAdmin": false

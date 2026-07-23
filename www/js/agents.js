@@ -23,6 +23,13 @@ let update_agents = async () => {
             agent_node.querySelector(".logo-os").setAttribute("os", current_agent.metrics.os.generic);
             agent_node.querySelector(".logo-arch").innerText = current_agent.metrics.os.arch;
 
+            agent_node.querySelector("button.authorize").addEventListener("click", function (event, _agent_uuid=agent_uuid){
+                fetch("/api/agents/authorize", {method:"POST", body:JSON.stringify({uuid:_agent_uuid})})
+            });
+            agent_node.querySelector("button.unauthorize").addEventListener("click", function (event, _agent_uuid=agent_uuid){
+                fetch("/api/agents/unauthorize", {method:"POST", body:JSON.stringify({uuid:_agent_uuid})})
+            });
+
             view_agents_list.append(agent_node);
         } else {
             agent_node = agents_list[agent_index];
@@ -33,13 +40,15 @@ let update_agents = async () => {
         meter_cpu.querySelector(".info").innerText = (current_agent.metrics.cpu * 100).toFixed(1) + "%";
 
         let meter_mem = agent_node.querySelector(".meter.memory");
-        meter_mem.querySelector("progress").value = current_agent.metrics.memory.used/current_agent.metrics.memory.total;
-        meter_mem.querySelector(".info").innerText = current_agent.metrics.memory.used + "/" + current_agent.metrics.memory.total + " GiB";
+        meter_mem.querySelector("progress").value = (current_agent.metrics.memory.used/(current_agent.metrics.memory.total != 0 ? current_agent.metrics.memory.total : 1));
+        meter_mem.querySelector(".info").innerText = current_agent.metrics.memory.used.toFixed(1) + "/" + current_agent.metrics.memory.total.toFixed(1) + " GiB";
 
         let meter_disk = agent_node.querySelector(".meter.disk");
-        meter_disk.querySelector("progress").value = current_agent.metrics.disk.used/current_agent.metrics.disk.total;
-        meter_disk.querySelector(".mount-point").innerText = "(" + current_agent.metrics.disk.mountPoint + ")";
-        meter_disk.querySelector(".info").innerText = current_agent.metrics.disk.used + "/" + current_agent.metrics.disk.total + " GiB";
+        meter_disk.querySelector("progress").value = (current_agent.metrics.disk.used/(current_agent.metrics.disk.total != 0 ? current_agent.metrics.disk.total : 1));
+        meter_disk.querySelector(".mount-point").innerText = (current_agent.metrics.disk.mountPoint != "") ? "(" + current_agent.metrics.disk.mountPoint + ")" : "";
+        meter_disk.querySelector(".info").innerText = current_agent.metrics.disk.used.toFixed(1) + "/" + current_agent.metrics.disk.total.toFixed(1) + " GiB";
+
+        agent_node.querySelector(".authorization").innerText = current_agent.status;
     };
 };
 
