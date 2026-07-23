@@ -19,6 +19,7 @@ type MetricsOS struct {
 	Name             string    `json:"name"`
 	Kernel           string    `json:"kernel"`
 	Generic          string    `json:"generic"`
+	Platform         string    `json:"platform"`
 	Arch             string    `json:"arch"`
 	Shell            string    `json:"shell"`
 	StartupTimestamp time.Time `json:"startupTimestamp"`

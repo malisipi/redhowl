@@ -1,0 +1,6 @@
+*.exe
+/agent
+/server
+*.dll
+*.so
+*.wasm

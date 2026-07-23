@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"redhowl/cmd/internal"
 	"sync"
 	"time"
@@ -20,24 +21,21 @@ var (
 )
 
 func main() {
-	agentUUID := "wolf-agent-1"
+	agentUUID := os.Getenv("REDHOWL-AGENT-UUID")
+	if agentUUID == "" {
+		agentUUID = "wolf-agent-1" // TODO: Replace that static string with real id gen and load
+	}
+	agentHomeServer := os.Getenv("REDHOWL-AGENT-HOME")
+	if agentHomeServer == "" {
+		agentHomeServer = "127.0.0.1:4000" // it defaults to localhost if not set
+	}
 
-	registerUri := url.URL{Scheme: "http", Host: "127.0.0.1:4000", Path: "/api/agent-com/register"}
+	registerUri := url.URL{Scheme: "http", Host: agentHomeServer, Path: "/api/agent-com/register"}
 	registerBody := internal.ReqAgentRegister{
-		UUID: agentUUID,
-		User: internal.MetricsUser{
-			Name:    "redwolf",
-			UID:     1000,
-			IsAdmin: false,
-		},
-		OS: internal.MetricsOS{
-			Name:             "CachyOS",
-			Kernel:           "linux",
-			Generic:          "linux",
-			Arch:             "amd64",
-			Shell:            "/bin/bash",
-			StartupTimestamp: time.Now(),
-		},
+		UUID:    agentUUID,
+		User:    getUserInfo(),
+		OS:      getOSInfo(),
+		Machine: getMachineInfo(),
 	}
 
 	go func() {
@@ -84,7 +82,7 @@ registerItselfBefore:
 		time.Sleep(2 * time.Second)
 	}
 
-	wsUri := url.URL{Scheme: "ws", Host: "127.0.0.1:4000", Path: "/api/agent-com/ws", RawQuery: "uuid=" + agentUUID}
+	wsUri := url.URL{Scheme: "ws", Host: agentHomeServer, Path: "/api/agent-com/ws", RawQuery: "uuid=" + agentUUID}
 	log.Printf("Agent trying to connect to the server: %s\n", wsUri.String())
 
 	var err error

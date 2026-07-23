@@ -1,18 +1,157 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
+	"os/exec"
+	"os/user"
 	"redhowl/cmd/internal"
 	"runtime"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
+	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
 const GiB float64 = 1 << 30
+
+func getUserInfo() internal.MetricsUser {
+	user, err := user.Current()
+	if err != nil {
+		return internal.MetricsUser{Name: "<unknown>", UID: -1, IsAdmin: false}
+	}
+	username := user.Username
+	uid, err := strconv.Atoi(user.Uid)
+	if err != nil {
+		uid = -1
+	}
+	isAdmin := uid == 0
+	if runtime.GOOS == "windows" {
+		if strings.Contains(username, "\\") {
+			username = strings.Split(username, "\\")[1]
+		}
+
+		sid := strings.Split(user.Uid, "-") // https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
+		rid, err := strconv.Atoi(sid[len(sid)-1])
+		if err == nil {
+			uid = rid
+		}
+
+		configFile, err := os.Open("\\\\?\\C:\\Windows\\System32\\config")
+		isAdmin = err == nil
+		if isAdmin {
+			configFile.Close()
+		}
+	}
+	return internal.MetricsUser{
+		Name:    username,
+		UID:     uid,
+		IsAdmin: isAdmin,
+	}
+}
+
+func getMachineInfo() internal.MetricsMachine {
+	ctx := context.Background()
+	info, err := host.InfoWithContext(ctx)
+
+	machineID := "unknown"
+	hostname := "unknown"
+
+	if err == nil {
+		machineID = info.HostID
+		hostname = info.Hostname
+	} else {
+		if _hostname, err := os.Hostname(); err == nil {
+			hostname = _hostname
+		}
+	}
+
+	vendor := "Unknown"
+	model := "Unknown"
+
+	switch runtime.GOOS {
+	case "linux":
+		if v, err := os.ReadFile("/sys/class/dmi/id/sys_vendor"); err == nil {
+			vendor = strings.TrimSpace(string(v))
+		}
+		if m, err := os.ReadFile("/sys/class/dmi/id/product_name"); err == nil {
+			model = strings.TrimSpace(string(m))
+		}
+	case "android":
+		if out, err := exec.Command("getprop", "ro.product.manufacturer").Output(); err == nil && len(out) > 0 {
+			vendor = strings.TrimSpace(string(out))
+		}
+		if out, err := exec.Command("getprop", "ro.product.model").Output(); err == nil && len(out) > 0 {
+			model = strings.TrimSpace(string(out))
+		}
+	}
+
+	return internal.MetricsMachine{
+		ID:        machineID,
+		Name:      hostname,
+		Vendor:    vendor,
+		ModelName: model,
+	}
+}
+
+func getOSInfo() internal.MetricsOS {
+	ctx := context.Background()
+	info, err := host.InfoWithContext(ctx)
+
+	if err != nil {
+		return internal.MetricsOS{
+			Name:             runtime.GOOS,
+			Kernel:           "unknown-kernel",
+			Generic:          runtime.GOOS,
+			Platform:         runtime.GOOS,
+			Arch:             runtime.GOARCH,
+			Shell:            "/bin/sh",
+			StartupTimestamp: time.Unix(int64(info.BootTime), 0),
+		}
+	}
+
+	var shell string
+	if runtime.GOOS != "windows" {
+		shell = os.Getenv("SHELL")
+		if shell == "" {
+			shell = "/bin/sh"
+		}
+	} else {
+		shell = "cmd.exe"
+	}
+
+	osPlatform := info.Platform
+	if runtime.GOOS == "windows" {
+		if _, err := os.Stat("C:/Windows/System32/winecfg.exe"); err == nil {
+			osPlatform = "Wine"
+		}
+	}
+	osName := strings.TrimSpace(info.Platform + " " + info.PlatformVersion)
+
+	// for mostly android (termux) support
+	if osName == "" {
+		osName = runtime.GOOS
+	}
+	if osPlatform == "" {
+		osPlatform = runtime.GOOS
+	}
+
+	return internal.MetricsOS{
+		Name:             osName,
+		Kernel:           info.KernelVersion,
+		Generic:          runtime.GOOS,
+		Platform:         osPlatform,
+		Arch:             runtime.GOARCH,
+		Shell:            shell,
+		StartupTimestamp: time.Unix(int64(info.BootTime), 0),
+	}
+}
 
 func getCpuUsage() float64 {
 	cpuPercents, err := cpu.Percent(0, false)

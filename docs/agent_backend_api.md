@@ -25,9 +25,10 @@ Request:
 {
     "uuid": "AGENT-LONG-UUID",
     "os": {
-        "name": "CachyOS", // os name itself "Windows 11", "Ubuntu 22.04", "Arch", "CachyOS" etc.
+        "name": "CachyOS", // os name itself, not will be formatted to downgrade generic names. Can also include some OS name details like version name or number
         "kernel": "Linux 7.1.3-2-cachyos",
-        "generic": "linux", // generic names like "linux", "windows", "macos"
+        "generic": "linux", // generic names like "linux", "windows", "darling" etc. not directly depends on the raw environment or container details like wine, just will be the generic type
+        "distro": "cachyos", // Mostly for identifying which distro is used, like "debian", "ubuntu", "cachyos", "android", "wine" etc.
         "arch": "amd64", // amd64, riscv64, arm64 etc
         "shell": "/bin/bash",
         "startupTimestamp": "2011-10-05T14:48:00.000Z"

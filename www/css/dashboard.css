@@ -8,11 +8,32 @@
     &[os="linux"]{
         background-image: url(../icons/linux.png);
     }
+    &[os="cachy"]{
+        background-image: url(../icons/cachy.png);
+    }
+    &[os="android"]{
+        background-image: url(../icons/android.png);
+    }
+    &[os="arch"]{
+        background-image: url(../icons/arch.png);
+    }
+    &[os="debian"]{
+        background-image: url(../icons/debian.png);
+    }
+    &[os="fedora"]{
+        background-image: url(../icons/cachy.png);
+    }
+    &[os="ubuntu"]{
+        background-image: url(../icons/ubuntu.png);
+    }
+    &[os="wine"]{
+        background-image: url(../icons/wine.png);
+    }
     &[os="windows"]{
         background-image: url(../icons/windows.png);
     }
-    &[os="macos"]{
-        background-image: url(../icons/macos.png);
+    &[os="darwin"]{
+        background-image: url(../icons/darwin.png);
     }
     &[os="unknown"]{
         background-image: url(../icons/unknown.png);

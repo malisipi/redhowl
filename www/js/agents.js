@@ -19,8 +19,35 @@ let update_agents = async () => {
             agent_node = agent_fragment.firstElementChild;
 
             // static infos
-            agent_node.setAttribute("uuid", agent_uuid);            
-            agent_node.querySelector(".logo-os").setAttribute("os", current_agent.metrics.os.generic);
+            agent_node.setAttribute("uuid", agent_uuid);
+            if(current_agent.metrics.os.generic == "darwin"){
+                agent_node.querySelector(".logo-os").setAttribute("os", "darwin");
+            } else if(current_agent.metrics.os.generic == "linux") {
+                let platform = current_agent.metrics.os.platform.toLowerCase();
+                if(platform.includes("cachy")){
+                    agent_node.querySelector(".logo-os").setAttribute("os", "cachy");
+                } else if(platform.includes("debian")){
+                    agent_node.querySelector(".logo-os").setAttribute("os", "debian");
+                } else if(platform.includes("ubuntu")){
+                    agent_node.querySelector(".logo-os").setAttribute("os", "ubuntu");
+                } else if(platform.includes("fedora")){
+                    agent_node.querySelector(".logo-os").setAttribute("os", "fedora");
+                } else if(platform.includes("arch")){
+                    agent_node.querySelector(".logo-os").setAttribute("os", "arch");
+                } else {
+                    agent_node.querySelector(".logo-os").setAttribute("os", "linux");
+                };
+            } else if(current_agent.metrics.os.generic == "android") {
+                agent_node.querySelector(".logo-os").setAttribute("os", "android");
+            } else if(current_agent.metrics.os.generic == "windows") {
+                if(current_agent.metrics.os.platform.toLowerCase() == "wine"){
+                    agent_node.querySelector(".logo-os").setAttribute("os", "wine");
+                } else {
+                    agent_node.querySelector(".logo-os").setAttribute("os", "windows");
+                };
+            } else {
+                agent_node.querySelector(".logo-os").setAttribute("os", "unknown");
+            }
             agent_node.querySelector(".logo-arch").innerText = current_agent.metrics.os.arch;
 
             agent_node.querySelector("button.authorize").addEventListener("click", function (event, _agent_uuid=agent_uuid){
